@@ -40,13 +40,14 @@ class UserModel extends Model
     protected $hidden = ['hashed_password'];
 
     /**
-     * 检查用户名是否唯一
+     * 检查用户名是否唯一 返回 true，表示用户名唯一；若存在，返回 false
      * @param string $username
      * @return bool
      */
     public static function isUsernameUnique(string $username): bool
     {
-        return !self::where('username', $username)->find();
+        // 更健壮的查询方式，避免空结果导致的误判
+        return self::where('username', trim($username))->count() === 0;
     }
 
     /**

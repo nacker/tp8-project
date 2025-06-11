@@ -16,6 +16,7 @@ class ErrorConstants
     public const TOKEN_INVALID = 'TOKEN_INVALID'; //token无效
     public const TOKEN_MISSING = 'TOKEN_MISSING'; //token缺失
     public const TOKEN_ERROR = 'TOKEN_ERROR'; //token错误
+    public const SERVER_ERROR = 'SERVER_ERROR';//服务器错误
 
 
     // 错误信息映射数组
@@ -36,6 +37,10 @@ class ErrorConstants
             'code' => 10004,
             'message' => '注册失败，请稍后再试'
         ],
+        self::SERVER_ERROR => [
+            'code' => 500,
+           'message' => '未知错误'
+        ]
     ];
 
     /**
