@@ -4,7 +4,7 @@ declare (strict_types = 1);
 namespace app\exception;
 
 use app\constants\ErrorConstants;
-use Exception;
+use think\Exception;
 
 class CustomException extends Exception
 {

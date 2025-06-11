@@ -52,7 +52,7 @@ class UserService
 
         // 创建一个 DateTime 对象并添加 6 个月的时间间隔，获取 Token 过期时间戳
         $expiry = (new DateTime())->add(new DateInterval('P6M'))->getTimestamp();
-        // 构建 JWT Token 的负载信息
+        // 构建 JWT Token ���负载信息
         $payload = [
             'user_id' => $user->id, // 用户 ID
             'username' => $user->username, // 用户名
@@ -94,12 +94,11 @@ class UserService
             }
 
             // 创建并保存新用户
-            $newUser = new UserModel([
-                'username' => $data['username'],
-                'hashed_password' => $data['password'],
-                'email' => $data['email'] ?? null,
-                'phone' => $data['phone'] ?? null
-            ]);
+            $newUser = new UserModel();
+            $newUser->username = $data['username'];
+            $newUser->hashed_password = $data['password'];
+            $newUser->email = $data['email'] ?? null;
+            $newUser->phone = $data['phone'] ?? null;
 
             if (!$newUser->save()) {
                 throw new CustomException(ErrorConstants::REGISTER_FAIL);
@@ -133,15 +132,19 @@ class UserService
      *
      * @return array 返回包含用户 ID 和用户名的数组
      */
-    public static function getUserInfoFomeToken()
+    public static function getUserInfoFromToken()
     {
         // 从请求头中获取 Authorization 字段的值，即 JWT Token
         $token = Request::header('Authorization');
-
-        // 从 Token 中提取用户 ID
-        $userId = JwtUtil::getUserIdFromToken($token);
-        // 从 Token 中提取用户名
-        $username = JwtUtil::getUsernameFromToken($token);
+  
+          // 检查 token 是否为空
+        if (empty($token)) {
+            throw new CustomException(ErrorConstants::TOKEN_MISSING);
+        }
+  
+          // 从 Token 中提取用户 ID
+          $userId = JwtUtil::getUserIdFromToken($token);
+          $username = JwtUtil::getUsernameFromToken($token);
         // 返回包含用户 ID 和用户名的数组
         return [
             'user_id' => $userId,

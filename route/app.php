@@ -23,7 +23,7 @@ Route::get('/', function () {
     // 2. 获取 Header
     $token = FacadeRequest::header('Authorization');
 
-    $userInfo = UserService::getUserInfoFomeToken();
+//    $userInfo = UserService::getUserInfoFromToken();
 
     $userAgent = FacadeRequest::header('user-agent');
 
@@ -37,7 +37,7 @@ Route::get('/', function () {
             'user_agent' => $userAgent
         ],
         'body' => $jsonData,
-        'user_info' => $userInfo,
+//        'user_info' => $userInfo,
     ] , 'PHP 是世界上最好的语言!');
 });
 

@@ -31,15 +31,47 @@ class ErrorConstants
         ],
         self::USERNAME_EXIST => [
             'code' => 10003,
-           'message' => '用户已存在'
+            'message' => '用户已存在'
         ],
         self::REGISTER_FAIL => [
             'code' => 10004,
             'message' => '注册失败，请稍后再试'
         ],
+        self::LOGIN_FAIL => [
+            'code' => 10005,
+            'message' => '登录失败，请稍后再试'
+        ],
+        self::USER_NOT_FOUND => [
+            'code' => 10006,
+            'message' => '用户不存在'
+        ],
+        self::USER_NOT_LOGIN => [
+            'code' => 10007,
+            'message' => '用户未登录'
+        ],
+        self::USER_NOT_AUTHORIZED => [
+            'code' => 10008,
+            'message' => '用户未授权'
+        ],
+        self::TOKEN_EXPIRED => [
+            'code' => 10009,
+            'message' => 'token已过期'
+        ],
+        self::TOKEN_INVALID => [
+            'code' => 10010,
+            'message' => 'token无效'
+        ],
+        self::TOKEN_MISSING => [
+            'code' => 10011,
+            'message' => 'token缺失'
+        ],
+        self::TOKEN_ERROR => [
+            'code' => 10012,
+            'message' => 'token错误'
+        ],
         self::SERVER_ERROR => [
             'code' => 500,
-           'message' => '未知错误'
+            'message' => '未知错误'
         ]
     ];
 
