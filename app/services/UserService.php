@@ -50,13 +50,12 @@ class UserService
             throw new CustomException(ErrorConstants::USERNAME_PASSWORD_WRONG);
         }
 
-        // 创建一个 DateTime 对象并添加 6 个月的时间间隔，获取 Token 过期时间戳
-        $expiry = (new DateTime())->add(new DateInterval('P6M'))->getTimestamp();
+        // 创建一个 DateTime 对象并添加 6 个月的时间间隔，获取
         // 构建 JWT Token ���负载信息
         $payload = [
             'user_id' => $user->id, // 用户 ID
             'username' => $user->username, // 用户名
-            'exp' => $expiry, // Token 过期时间
+            'exp' => (new DateTime())->add(new DateInterval('P6M'))->getTimestamp()
         ];
         // 生成 JWT Token 并添加 Bearer 前缀
         $token = 'Bearer ' . JwtUtil::generateToken($payload);
@@ -113,7 +112,7 @@ class UserService
 
             return [
                 'token' => $token,
-                'user' => $newUser->makeHidden(['hashed_password']) // 隐藏敏感字段
+                'user' => $newUser
             ];
 
         } catch (CustomException $e) {
