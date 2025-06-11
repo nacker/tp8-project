@@ -5,10 +5,6 @@ namespace app\model;
 
 use think\Model;
 
-/**
- * 用户模型类
- * @mixin \think\Model
- */
 class UserModel extends Model
 {
     // 设置表名

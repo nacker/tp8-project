@@ -48,6 +48,9 @@ composer require firebase/php-jwt
 composer require symfony/console
 ```
 
+## 
+swagger.json
+
 ```bash
 composer require hg/apidoc
 php think apidoc:publish

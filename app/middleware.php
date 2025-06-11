@@ -10,8 +10,9 @@ return [
 
     // 全局中间件
     \app\middleware\PrettyRequestLogger::class,
+    \think\middleware\AllowCrossDomain::class,
     // 使用完整类名
 //    \app\middleware\JwtAuth::class
-    'JwtAuth' => app\middleware\JwtAuth::class
+//    'JwtAuth' => app\middleware\JwtAuth::class
 
 ];

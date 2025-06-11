@@ -3,6 +3,7 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
+use app\BaseController;
 use think\facade\Log;
 use think\Request;
 use app\model\UserModel;
@@ -11,7 +12,7 @@ use app\utils\Result;
 use app\services\UserService;
 
 
-class UserController
+class UserController extends BaseController
 {
     /**
      * 显示资源列表
@@ -88,19 +89,20 @@ class UserController
      * @param Request $request
      * @return \think\response\Json
      */
-    public function register(Request $request)
+    public function register()
     {
-        return UserService::register($request);
+        $result = UserService::register();
+        return Result::success($result, '注册成功');
     }
 
     /**
      * 用户登录
      *
-     * @param Request $request
      * @return \think\response\Json
      */
-    public function login(Request $request)
+    public function login()
     {
-        return UserService::login($request);
+        $result = UserService::login();
+        return Result::success($result, '登录成功');
     }
 }

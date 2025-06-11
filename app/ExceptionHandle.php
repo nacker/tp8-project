@@ -59,18 +59,6 @@ class ExceptionHandle extends Handle
     public function render($request, Throwable $e): Response
     {
 
-        // 添加自定义异常处理机制
-        if ($e instanceof \hg\apidoc\exception\HttpException) {
-            return json(
-                [
-                    "code" => $e->getCode(),
-                    "message" => $e->getMessage(),
-                    'data' => $e->getError(),
-                ],
-                $e->getStatusCode()
-            );
-        }
-
         // 自定义 HTTP 异常处理
         if ($e instanceof HttpException) {
             return json([

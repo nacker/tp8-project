@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace app\utils;
 
 use think\response\Json;
@@ -7,7 +9,6 @@ class Result
 {
     /**
      * 成功响应
-     *
      * @param mixed $data 返回数据
      * @param string $message 提示信息
      * @param int $code 状态码
@@ -24,7 +25,6 @@ class Result
 
     /**
      * 错误响应
-     *
      * @param string $message 错误信息
      * @param int $code 错误码
      * @param mixed $data 可选数据

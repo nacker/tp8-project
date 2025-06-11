@@ -3,6 +3,8 @@ namespace app\utils;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use think\Exception;
+use think\Response;
 
 class JwtUtil
 {
@@ -29,6 +31,12 @@ class JwtUtil
      */
     public static function verifyToken(string $token)
     {
+        // 2. 验证 Token 格式（Bearer Token）
+        if (!preg_match('/Bearer\s(\S+)/', $token, $matches)) {
+            throw new Exception('Token 格式错误', 401);
+        }
+        $token = $matches[1];
+
         try {
             $decoded = JWT::decode($token, new Key(self::$key, self::$alg));
             return $decoded;

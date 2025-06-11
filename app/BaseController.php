@@ -3,6 +3,7 @@ declare (strict_types = 1);
 
 namespace app;
 
+use OpenApi\Annotations as OA;
 use think\App;
 use think\exception\ValidateException;
 use think\Validate;
@@ -47,7 +48,7 @@ abstract class BaseController
         $this->request = $this->app->request;
 
         // 设置跨域响应头
-        $this->setCorsHeaders();
+//        $this->setCorsHeaders();
 
         // 控制器初始化
         $this->initialize();

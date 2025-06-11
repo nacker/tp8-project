@@ -24,12 +24,6 @@ class JwtAuth
             return Response::create(['code' => 401, 'msg' => 'Token 缺失'], 'json', 401);
         }
 
-        // 2. 验证 Token 格式（Bearer Token）
-        if (!preg_match('/Bearer\s(\S+)/', $token, $matches)) {
-            return Response::create(['code' => 401, 'msg' => 'Token 格式错误'], 'json', 401);
-        }
-        $token = $matches[1];
-
         $decoded = JwtUtil::verifyToken($token);
 
         if (!$decoded) {
