@@ -9,7 +9,7 @@ return [
     'default' => 'file',
 
     // 缓存连接方式配置
-    'stores'  => [
+    'stores' => [
         'file' => [
             // 驱动方式
             'type'       => 'File',
@@ -24,6 +24,14 @@ return [
             // 序列化机制 例如 ['serialize', 'unserialize']
             'serialize'  => [],
         ],
-        // 更多的缓存连接
+        'redis' => [
+            'type' => 'redis',
+            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'port' => env('REDIS_PORT', 6379),
+            'password' => env('REDIS_PASSWORD', ''),
+            'select' => env('REDIS_SELECT', 0),
+            'timeout' => 5, // 超时时间（秒）
+            'persistent' => true, // 启用持久连接
+        ],
     ],
 ];

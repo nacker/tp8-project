@@ -1,6 +1,7 @@
 <?php
 namespace app\services;
 
+use app\constants\Constants;
 use app\constants\ErrorConstants;
 use app\model\UserModel;
 use app\utils\JwtUtil;
@@ -10,6 +11,7 @@ use think\facade\Request;
 use DateInterval;
 use DateTime;
 use app\exception\CustomException;
+use think\facade\Cache;
 
 /**
  * 用户服务类，提供用户登录、注册以及从 Token 获取用户信息的功能
@@ -51,15 +53,17 @@ class UserService
         }
 
         // 创建一个 DateTime 对象并添加 6 个月的时间间隔，获取
-        // 构建 JWT Token ���负载信息
+        // 构建 JWT Token 负载信息
         $payload = [
             'user_id' => $user->id, // 用户 ID
             'username' => $user->username, // 用户名
-            'exp' => (new DateTime())->add(new DateInterval('P6M'))->getTimestamp()
+//            'exp' => (new DateTime())->add(new DateInterval('P6M'))->getTimestamp()
         ];
         // 生成 JWT Token 并添加 Bearer 前缀
         $token = 'Bearer ' . JwtUtil::generateToken($payload);
 
+        // 将 token 存入 Redis，不设置过期时间
+        Cache::store('redis')->set(Constants::USER_TOKEN_PREFIX . $user->id, $token);
         // 返回包含 Token 和用户信息的数组
         return [
             'token' => $token,
@@ -103,16 +107,21 @@ class UserService
                 throw new CustomException(ErrorConstants::REGISTER_FAIL);
             }
 
+            $u = UserModel::where('username', $data['username'])->find();
+
             // 生成JWT Token
             $token = 'Bearer ' . JwtUtil::generateToken([
-                    'user_id' => $newUser->id,
-                    'username' => $newUser->username,
-                    'exp' => (new DateTime())->add(new DateInterval('P6M'))->getTimestamp()
+                    'user_id' => $u->id,
+                    'username' => $u->username,
+//                    'exp' => (new DateTime())->add(new DateInterval('P6M'))->getTimestamp()
                 ]);
+
+            // 将 token 存入 Redis，不设置过期时间
+            Cache::store('redis')->set(Constants::USER_TOKEN_PREFIX . $u->id, $token);
 
             return [
                 'token' => $token,
-                'user' => $newUser
+                'user' => $u,
             ];
 
         } catch (CustomException $e) {
@@ -129,14 +138,29 @@ class UserService
      *
      * 该方法从请求头中获取 JWT Token，并从中提取用户 ID 和用户名
      *
-     * @return array 返回包含用户 ID 和用户名的数组
+     * @return array|true
      */
+    public static function logout()
+    {
+        $token = Request::header('Authorization');
+        
+        if (empty($token)) {
+            throw new CustomException(ErrorConstants::TOKEN_MISSING);
+        }
+
+        $userId = JwtUtil::getUserIdFromToken($token);
+        
+        // 从 Redis 中删除用户的 token
+        Cache::store('redis')->delete(Constants::USER_TOKEN_PREFIX . $userId);
+
+        return true;
+    }
     public static function getUserInfoFromToken()
     {
         // 从请求头中获取 Authorization 字段的值，即 JWT Token
         $token = Request::header('Authorization');
-  
-          // 检查 token 是否为空
+
+        // 检查 token 是否为空
         if (empty($token)) {
             throw new CustomException(ErrorConstants::TOKEN_MISSING);
         }

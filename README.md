@@ -43,6 +43,11 @@ composer require firebase/php-jwt predis/predis
 composer require firebase/php-jwt
 ```
 
+## 缓存
+```bash
+composer require predis/predis
+```
+
 ## 日志
 ```shell
 composer require symfony/console
