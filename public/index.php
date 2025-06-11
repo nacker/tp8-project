@@ -15,6 +15,17 @@ use think\App;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+// 加载 .env 配置（如果你使用 .env 的话）
+//if (file_exists(__DIR__ . '/../.env')) {
+//    Dotenv\Dotenv::createImmutable(__DIR__ . '/../')->load();
+//    // 可添加调试信息确认是否加载成功
+//    echo "Loaded .env file";
+//    exit;
+//} else {
+//    echo ".env file not found";
+//    exit;
+//}
+
 // 执行HTTP应用并响应
 $http = (new App())->http;
 

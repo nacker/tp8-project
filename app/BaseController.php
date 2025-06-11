@@ -46,8 +46,36 @@ abstract class BaseController
         $this->app     = $app;
         $this->request = $this->app->request;
 
+        // 设置跨域响应头
+        $this->setCorsHeaders();
+
         // 控制器初始化
         $this->initialize();
+    }
+
+    /**
+     * 设置跨域响应头
+     */
+    private function setCorsHeaders()
+    {
+        $origin = $this->request->header('Origin');
+        // 允许的域名列表，* 表示允许所有域名，实际生产环境建议指定具体域名
+        $allowOrigins = [
+            '*'
+        ];
+
+        if (in_array('*', $allowOrigins) || in_array($origin, $allowOrigins)) {
+            // 设置跨域响应头
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+            header('Access-Control-Allow-Headers: Authorization, Content-Type, X-Requested-With, Accept, Origin, User-Agent, Cache-Control, Pragma');
+            header('Access-Control-Allow-Credentials: true');
+        }
+
+        // 处理 OPTIONS 请求
+        if ($this->request->method(true) === 'OPTIONS') {
+            exit;
+        }
     }
 
     // 初始化
