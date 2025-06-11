@@ -1,30 +1,43 @@
 <?php
+declare (strict_types = 1);
+
 namespace app\middleware;
 
 use app\utils\JwtUtil;
+use think\facade\Request;
 use think\Response;
 
 class JwtAuth
 {
-    public function handle($request, \Closure $next): Response
+    /**
+     * 处理请求
+     *
+     * @param \think\Request $request
+     * @param \Closure       $next
+     * @return Response|\think\response\Json
+     */
+    public function handle($request, \Closure $next)
     {
-        // 从请求头中获取 Token
-        $token = $request->header('Authorization');
+        // 1. 从 Header 获取 Token
+        $token = Request::header('Authorization');
         if (!$token) {
-            return response()->code(401)->data(['message' => '未提供 Token']);
+            return Response::create(['code' => 401, 'msg' => 'Token 缺失'], 'json', 401);
         }
 
-        // 去除 Token 前缀
-        $token = str_replace('Bearer ', '', $token);
+        // 2. 验证 Token 格式（Bearer Token）
+        if (!preg_match('/Bearer\s(\S+)/', $token, $matches)) {
+            return Response::create(['code' => 401, 'msg' => 'Token 格式错误'], 'json', 401);
+        }
+        $token = $matches[1];
 
-        // 验证 Token
-        $payload = JwtUtil::verifyToken($token);
-        if (!$payload) {
-            return response()->code(401)->data(['message' => '无效的 Token']);
+        $decoded = JwtUtil::verifyToken($token);
+
+        if (!$decoded) {
+            return json(['code' => 401, 'message' => '无效的 Token'], 401);
         }
 
-        // 将解析后的负载信息添加到请求对象中，方便后续使用
-        $request->jwtPayload = $payload;
+        // 将解析后的用户信息附加到请求对象
+        $request->user = (array)$decoded;
 
         return $next($request);
     }

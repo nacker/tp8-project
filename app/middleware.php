@@ -8,5 +8,10 @@ return [
     // Session初始化
     // \think\middleware\SessionInit::class
 
-    \app\middleware\PrettyRequestLogger::class
+    // 全局中间件
+    \app\middleware\PrettyRequestLogger::class,
+    // 使用完整类名
+//    \app\middleware\JwtAuth::class
+    'JwtAuth' => app\middleware\JwtAuth::class
+
 ];

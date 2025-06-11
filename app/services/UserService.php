@@ -5,6 +5,8 @@ use app\model\UserModel;
 use app\utils\JwtUtil;
 use app\utils\Result;
 
+use DateInterval;
+use DateTime;
 use think\facade\Log;
 use think\Request;
 use think\facade\Request as FacadeRequest;
@@ -39,10 +41,11 @@ class UserService
         }
 
         // 生成 JWT Token
+        $expiry = (new DateTime())->add(new DateInterval('P6M'))->getTimestamp();
         $payload = [
             'user_id' => $user->id,
             'username' => $user->username,
-            'exp' => time() + 3600, // Token 有效期为 1 小时
+            'exp' => $expiry, // Token 精确到当前时间 + 6个月
         ];
         $token = 'Bearer ' . JwtUtil::generateToken($payload);
 
@@ -78,10 +81,11 @@ class UserService
 
         if ($user->save()) {
             $u = UserModel::where('username', $user->username)->find();
+            $expiry = (new DateTime())->add(new DateInterval('P6M'))->getTimestamp();
             $payload = [
                 'user_id' => $u->id,
                 'username' => $u->username,
-                'exp' => time() + 3600, // Token 有效期为 1 小时
+                'exp' => $expiry, // Token 有效期为 1 小时
             ];
 //            Log::info('用户保存成功，主键值：' . $u->id);
             $token = 'Bearer ' . JwtUtil::generateToken($payload);
