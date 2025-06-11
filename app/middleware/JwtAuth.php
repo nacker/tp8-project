@@ -3,7 +3,9 @@ declare (strict_types = 1);
 
 namespace app\middleware;
 
+use app\constants\Constants;
 use app\utils\JwtUtil;
+use think\facade\Cache;
 use think\facade\Request;
 use think\Response;
 
@@ -29,6 +31,13 @@ class JwtAuth
         if (!$decoded) {
             return json(['code' => 401, 'message' => '无效的 Token'], 401);
         }
+
+//        redis 获取 token
+        $redisToken = Cache::store('redis')->get(Constants::USER_TOKEN_PREFIX . $decoded->user_id);
+        if ($redisToken !== $token) {
+            return json(['code' => 401, 'message' => 'Token 已过期'], 401);
+        }
+
 
         // 将解析后的用户信息附加到请求对象
         $request->user = (array)$decoded;

@@ -3,7 +3,6 @@ declare (strict_types = 1);
 
 namespace app;
 
-use OpenApi\Annotations as OA;
 use think\App;
 use think\exception\ValidateException;
 use think\Validate;
