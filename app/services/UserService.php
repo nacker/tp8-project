@@ -76,14 +76,16 @@ class UserService
         $user->phone = $data['phone'] ?? null;
 
         if ($user->save()) {
+            $u = UserModel::where('username', $user->username)->find();
             $payload = [
-                'user_id' => $user->id,
-                'username' => $user->username,
+                'user_id' => $u->id,
+                'username' => $u->username,
                 'exp' => time() + 3600, // Token 有效期为 1 小时
             ];
+//            Log::info('用户保存成功，主键值：' . $u->id);
             $token = JwtUtil::generateToken($payload);
 //            Log::info('用户保存成功，主键值：' . $user->id);
-            return Result::success( ['token' => $token,  'user' => $user], '注册成功');
+            return Result::success( ['token' => $token,  'user' => $u], '注册成功');
         } else {
 //            Log::error('用户保存失败');
             return Result::error('注册失败，请稍后再试', 500);
