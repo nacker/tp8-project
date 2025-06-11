@@ -1,6 +1,7 @@
 <?php
 namespace app;
 
+use app\exception\CustomException;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
 use think\exception\Handle;
@@ -84,6 +85,23 @@ class ExceptionHandle extends Handle
                 'message' => '数据不存在', // 自定义消息
                 'data' => null,
             ], 404);
+        }
+
+        if ($e instanceof CustomException) {
+            return json([
+                'code' => $e->getCode(),
+                'message' => $e->getMessage(),
+                'data' => null,
+            ], 404);
+        }
+
+        // 其他异常处理
+        if ($e instanceof Throwable) {
+            return json([
+                'code' => 500, // 统一服务器错误码
+                'message' => '服务器内部错误', // 自定义消息
+                'data' => null,
+            ], 500);
         }
 
         // 生产环境隐藏详细错误信息

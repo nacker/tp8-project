@@ -21,7 +21,7 @@ class UserController extends BaseController
      */
     public function index()
     {
-        $userInfo = UserService::getUserInfo();
+        $userInfo = UserService::getUserInfoFomeToken();
         $user = UserModel::find($userInfo['user_id']);
         return Result::success($user);
     }

@@ -1,54 +1,65 @@
 <?php
 namespace app\services;
 
+use app\constants\ErrorConstants;
 use app\model\UserModel;
 use app\utils\JwtUtil;
-use think\Exception;
 use think\facade\Request;
 use DateInterval;
 use DateTime;
-use think\facade\Request as FacadeRequest;
+use app\exception\CustomException;
 
+/**
+ * 用户服务类，提供用户登录、注册以及从 Token 获取用户信息的功能
+ */
 class UserService
 {
     /**
      * 用户登录逻辑
      *
-     * @param Request $request
-     * @return array|\think\response\Json
+     * 该方法处理用户登录请求，验证用户输入的用户名和密码，若验证通过则生成 JWT Token
+     *
+     * @return array|\think\response\Json 返回包含 Token 和用户信息的数组，若验证失败则抛出异常
      */
     public static function login()
     {
+        // 获取当前请求实例
         $request = Request::instance();
+        // 获取 POST 请求数据
         $data = $request->post();
 
+        // 从请求数据中提取用户名
         $username = $data['username'];
+        // 从请求数据中提取密码
         $password = $data['password'];
-        // 验证必填字段
+
+        // 验证必填字段：用户名和密码是否为空
         if (empty($username) || empty($password)) {
-            throw new Exception('用户名或密码不能为空');
+            // 若为空，抛出用户名或密码不能为空的自定义异常
+            throw new CustomException(ErrorConstants::USERNAME_PASSWORD_EMPTY);
         }
 
-
-        // 查询用户
+        // 根据用户名从数据库中查询用户信息
         $user = UserModel::where('username', $username)->find();
-//        if (!$user || !password_verify($data['password'], $user->hashed_password)) {
-//            return Result::error('用户名或密码错误', 401);
-//        }
 
+        // 验证用户是否存在以及密码是否正确
         if (!$user || $password !== $user->hashed_password) {
-            throw new Exception('用户名或密码错误', 401);
+            // 若验证失败，抛出用户名或密码错误的自定义异常
+            throw new CustomException(ErrorConstants::USERNAME_PASSWORD_WRONG);
         }
 
-        // 生成 Token
+        // 创建一个 DateTime 对象并添加 6 个月的时间间隔，获取 Token 过期时间戳
         $expiry = (new DateTime())->add(new DateInterval('P6M'))->getTimestamp();
+        // 构建 JWT Token 的负载信息
         $payload = [
-            'user_id' => $user->id,
-            'username' => $user->username,
-            'exp' => $expiry,
+            'user_id' => $user->id, // 用户 ID
+            'username' => $user->username, // 用户名
+            'exp' => $expiry, // Token 过期时间
         ];
+        // 生成 JWT Token 并添加 Bearer 前缀
         $token = 'Bearer ' . JwtUtil::generateToken($payload);
 
+        // 返回包含 Token 和用户信息的数组
         return [
             'token' => $token,
             'user' => $user,
@@ -58,56 +69,86 @@ class UserService
     /**
      * 用户注册逻辑
      *
-     * @return array|\think\response\Json
+     * 该方法处理用户注册请求，验证用户输入的信息，若信息有效则创建新用户并生成 JWT Token
+     *
+     * @return array|\think\response\Json 返回包含 Token 和用户信息的数组，若注册失败则抛出异常
      */
     public static function register()
     {
+        // 获取当前请求实例
         $request = Request::instance();
+        // 获取 POST 请求数据
         $data = $request->post();
 
-        // 验证必填字段
-        if (empty($data['username']) || empty($data['password'])) {
-            throw new Exception('用户名或密码不能为空', 400);
+        // 从请求数据中提取用户名
+        $username = $data['username'];
+        // 从请求数据中提取密码
+        $password = $data['password'];
+
+        // 验证必填字段：用户名和密码是否为空
+        if (empty($username) || empty($password)) {
+            // 若为空，抛出用户名或密码不能为空的自定义异常
+            throw new CustomException(ErrorConstants::USERNAME_PASSWORD_EMPTY);
         }
 
-        // 检查用户名是否已存在
-        if (!UserModel::isUsernameUnique($data['username'])) {
-            throw new Exception('用户名已存在', 400);
+        // 查询用户
+        $user = UserModel::where('username', $username)->find();
+        var_dump($user);
+        if ($user) {
+            // 若用户名已存在，抛出用户名已存在的自定义异常
+            throw new CustomException(ErrorConstants::USERNAME_EXIST);
         }
-
-        // 创建新用户
-        $user = new UserModel();
+        // 设置用户模型的用户名
         $user->username = $data['username'];
+        // 设置用户模型的密码
         $user->hashed_password = $data['password'];
+        // 设置用户模型的邮箱，若请求数据中没有则为 null
         $user->email = $data['email'] ?? null;
+        // 设置用户模型的手机号，若请求数据中没有则为 null
         $user->phone = $data['phone'] ?? null;
 
+        // 尝试将新用户信息保存到数据库
         if ($user->save()) {
-            $u = UserModel::where('username', $user->username)->find();
+            // 保存成功后，根据用户名从数据库中重新查询用户信息
+
+            // 创建一个 DateTime 对象并添加 6 个月的时间间隔，获取 Token 过期时间戳
             $expiry = (new DateTime())->add(new DateInterval('P6M'))->getTimestamp();
+            // 构建 JWT Token 的负载信息
             $payload = [
-                'user_id' => $u->id,
-                'username' => $u->username,
-                'exp' => $expiry, // Token 有效期为 1 小时
+                'user_id' => $user->id, // 用户 ID
+                'username' => $user->username, // 用户名
+                'exp' => $expiry, // Token 过期时间
             ];
+            // 生成 JWT Token 并添加 Bearer 前缀
             $token = 'Bearer ' . JwtUtil::generateToken($payload);
+            // 返回包含 Token 和用户信息的数组
             return [
                 'token' => $token,
-                'user' => $u,
+                'user' => $user,
             ];
         } else {
-            throw new Exception('注册失败，请稍后再试', 500);
+            // 若保存失败，抛出注册失败的自定义异常
+            throw new CustomException(ErrorConstants::REGISTER_FAIL);
         }
-
     }
 
+    /**
+     * 从 Token 获取用户信息
+     *
+     * 该方法从请求头中获取 JWT Token，并从中提取用户 ID 和用户名
+     *
+     * @return array 返回包含用户 ID 和用户名的数组
+     */
     public static function getUserInfoFomeToken()
     {
-        // 1. 从 Header 获取 Token
+        // 从请求头中获取 Authorization 字段的值，即 JWT Token
         $token = Request::header('Authorization');
 
+        // 从 Token 中提取用户 ID
         $userId = JwtUtil::getUserIdFromToken($token);
+        // 从 Token 中提取用户名
         $username = JwtUtil::getUsernameFromToken($token);
+        // 返回包含用户 ID 和用户名的数组
         return [
             'user_id' => $userId,
             'username' => $username,
