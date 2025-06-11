@@ -3,11 +3,13 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
+use think\facade\Log;
 use think\Request;
 use app\model\UserModel;
 use app\utils\JwtUtil;
 use app\utils\Result;
 use app\services\UserService;
+
 
 class UserController
 {
@@ -18,8 +20,11 @@ class UserController
      */
     public function index()
     {
-        //
+        $userInfo = UserService::getUserInfo();
+        $user = UserModel::find($userInfo['user_id']);
+        return Result::success($user);
     }
+
 
     /**
      * 显示创建资源表单页.

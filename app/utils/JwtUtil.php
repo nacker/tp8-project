@@ -36,4 +36,32 @@ class JwtUtil
             return false;
         }
     }
+
+    /**
+     * 从 JWT Token 中获取用户 ID
+     * @param string $token
+     * @return int|false 用户 ID 或验证失败返回 false
+     */
+    public static function getUserIdFromToken(string $token)
+    {
+        $decoded = self::verifyToken($token);
+        if ($decoded && isset($decoded->user_id)) {
+            return (int) $decoded->user_id;
+        }
+        return false;
+    }
+
+    /**
+     * 从 JWT Token 中获取用户名
+     * @param string $token
+     * @return string|false 用户名或验证失败返回 false
+     */
+    public static function getUsernameFromToken(string $token)
+    {
+        $decoded = self::verifyToken($token);
+        if ($decoded && isset($decoded->username)) {
+            return (string) $decoded->username;
+        }
+        return false;
+    }
 }

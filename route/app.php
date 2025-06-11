@@ -8,12 +8,35 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+use app\services\UserService;
 use app\utils\Result;
+use think\facade\Request as FacadeRequest;
 use think\facade\Route;
 
 // 全局路由示例
 Route::get('/', function () {
-    return Result::success('Hello,ThinkPHP8');
+    // 1. 获取 GET 参数
+    $getParams = FacadeRequest::get();
+
+    // 2. 获取 Header
+    $token = FacadeRequest::header('token');
+
+    $userInfo = UserService::getUserInfo();
+
+    $userAgent = FacadeRequest::header('user-agent');
+
+    // 3. 获取 JSON Body
+    $jsonData = json_decode(FacadeRequest::getContent(), true);
+
+    return Result::success([
+        'get_params' => $getParams,
+        'headers' => [
+            'token' => $token,
+            'user_agent' => $userAgent
+        ],
+        'body' => $jsonData,
+        'user_info' => $userInfo
+    ]);
 });
 
 Route::get('hello/:name', 'index/hello');
@@ -23,4 +46,5 @@ Route::get('hello/:name', 'index/hello');
 Route::group('user', function () {
     Route::post('register', 'UserController/register'); // 用户注册
     Route::post('login', 'UserController/login');       // 用户登录
+    Route::get('', 'UserController/index');       // 获取用户信息
 });

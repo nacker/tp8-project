@@ -7,6 +7,7 @@ use app\utils\Result;
 
 use think\facade\Log;
 use think\Request;
+use think\facade\Request as FacadeRequest;
 
 class UserService
 {
@@ -43,7 +44,7 @@ class UserService
             'username' => $user->username,
             'exp' => time() + 3600, // Token 有效期为 1 小时
         ];
-        $token = JwtUtil::generateToken($payload);
+        $token = 'Bearer ' . JwtUtil::generateToken($payload);
 
         return Result::success(['token' => $token,  'user' => $user], '登录成功');
     }
@@ -83,12 +84,42 @@ class UserService
                 'exp' => time() + 3600, // Token 有效期为 1 小时
             ];
 //            Log::info('用户保存成功，主键值：' . $u->id);
-            $token = JwtUtil::generateToken($payload);
+            $token = 'Bearer ' . JwtUtil::generateToken($payload);
 //            Log::info('用户保存成功，主键值：' . $user->id);
             return Result::success( ['token' => $token,  'user' => $u], '注册成功');
         } else {
 //            Log::error('用户保存失败');
             return Result::error('注册失败，请稍后再试', 500);
         }
+    }
+
+    /**
+     * 从 JWT Token 中获取用户信息（user_id 和 username）
+     * @return array ['user_id' => int|false, 'username' => string|false]
+     */
+    public static function getUserInfo(): array
+    {
+        // 获取请求头中的 token
+        $token = FacadeRequest::header('Authorization');
+        // 检查是否有 Bearer 前缀，如果没有则直接使用原始值
+
+        if (!$token) {
+            return [
+                'user_id' => false,
+                'username' => false,
+            ];
+        }
+
+        if (strpos($token, 'Bearer ') === 0) {
+            $token = substr($token, 7); // 去除 "Bearer " 前缀
+        }
+
+        $userId = JwtUtil::getUserIdFromToken($token);
+        $username = JwtUtil::getUsernameFromToken($token);
+
+        return [
+            'user_id' => $userId,
+            'username' => $username,
+        ];
     }
 }

@@ -43,6 +43,11 @@ composer require firebase/php-jwt predis/predis
 composer require firebase/php-jwt
 ```
 
+## 日志
+```shell
+composer require symfony/console
+```
+
 ```bash
 composer require hg/apidoc
 php think apidoc:publish
