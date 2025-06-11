@@ -88,7 +88,7 @@ class UserService
             }
 
             // 检查用户名唯一性 - 更明确的逻辑表达
-            if (!self::isUsernameUnique($data['username'])) {
+            if (!UserModel::isUsernameUnique($data['username'])) {
                 Log::warning('注册失败：用户名已存在', ['username' => $data['username']]);
                 throw new CustomException(ErrorConstants::USERNAME_EXIST);
             }

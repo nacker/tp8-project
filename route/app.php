@@ -21,7 +21,7 @@ Route::get('/', function () {
     $getParams = FacadeRequest::get();
 
     // 2. 获取 Header
-    $token = FacadeRequest::header('token');
+    $token = FacadeRequest::header('Authorization');
 
     $userInfo = UserService::getUserInfoFomeToken();
 
